@@ -11,7 +11,7 @@ namespace Gerenciamente_de_controle_de_estoque
         public string nome { get; set; }
         public int quantidade { get; set; }
         public decimal valor { get; set; }
-        public  string data_venc {  get; set; }
+        public  DateTime data_venc {  get; set; }
         
     }
 }
