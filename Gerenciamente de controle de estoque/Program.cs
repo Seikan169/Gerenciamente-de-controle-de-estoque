@@ -81,20 +81,20 @@ namespace Gerenciamente_de_controle_de_estoque
                         break;// final caso 1 
 
                     case 2: // INICIO CASO 2 
-                        Console.Clear();
+                        
                         string campo = "";
                         int opcaoBuscar = 0;
                         string valorParaBusc = "";
                         do
                         {
+                            Console.Clear();
                             Console.WriteLine("|==================|");
                             Console.WriteLine("|  Buscar Produtos |");
                             Console.WriteLine("|==================|");
                             Console.WriteLine("| 1 - Buscar todos |");
                             Console.WriteLine("| 2 - ID           |");
                             Console.WriteLine("| 3 - Nome         |");
-                            Console.WriteLine("| 4 - Vencimento   |");
-                            Console.WriteLine("| 5 - Voltar       |");
+                            Console.WriteLine("| 4 - Voltar       |");
                             Console.WriteLine("|==================|");
                             Console.WriteLine();
 
@@ -115,16 +115,43 @@ namespace Gerenciamente_de_controle_de_estoque
                                     break;
 
                                 case 2:
+                                    Console.Clear();
+
+                                    Console.Write("Digite o ID do produto  que deseja buscar :");
+                                    valorParaBusc = Console.ReadLine();
+                                   
+                                    BuscarProduto(opcaoBuscar, valorParaBusc);
+                                    Console.ReadKey();
+
+
+
+                                    break;
+
+                                case 3:
+                                    
+                                    Console.Clear();
+                                    Console.Write("Digite o nome do produto que deseja buscar :");
+                                    valorParaBusc = Console.ReadLine();
+
+                                    BuscarProduto(opcaoBuscar,valorParaBusc);
+                                    Console.ReadKey();
+
+                                    break;
+                                case 4:
+                                    
+                                    
 
                                     break;
                                 default:
+                                    Console.WriteLine("Opção invalida !!");
+                                    Console.ReadKey();
                                     break;
                             }
 
 
 
 
-                        } while (opcaoBuscar != 5);
+                        } while (opcaoBuscar != 4);
                         break; // FINAL CASO 2 
                 }// Final do swtich 
 
@@ -213,7 +240,7 @@ namespace Gerenciamente_de_controle_de_estoque
 
         static void Inserindo(Produto produto)
         {
-            string conexao = "server=localhost;user=root;password=Suasenha.;database=nomedobanco";
+            string conexao = "server=localhost;user=root;password=sua senha;database=seubanco";
 
             try
             {
@@ -248,7 +275,7 @@ namespace Gerenciamente_de_controle_de_estoque
 
         static void BuscarProduto(int opcao, string valor) 
         {
-            string conexao = "server=localhost;user=root;password=suasenha@.;database=nomedobanco";
+            string conexao = "server=localhost;user=root;password=suasenha;database=seubanco";
             try
             {
                 using (MySqlConnection banco = new MySqlConnection(conexao))
@@ -257,14 +284,31 @@ namespace Gerenciamente_de_controle_de_estoque
                     string tabela = "";
                     MySqlCommand cmd = new MySqlCommand();
                     cmd.Connection = banco;
+                    
 
                     if (opcao == 1)
                     {
                         tabela = "SELECT * FROM Produto; ";
                     }
+                    else if (opcao == 2)
+                    {
+                        tabela = "SELECT * FROM produto WHERE id = @valor";
+
+                        int id = int.Parse(valor);
+                        
+                        cmd.Parameters.AddWithValue("@valor",id);
+
+                    }
+                    else if (opcao == 3)
+                    {
+                        tabela = "SELECT * FROM produto WHERE nome LIKE @valor";
+
+                        cmd.Parameters.AddWithValue("@valor", "%" + valor + "%");
+                    }
+                    
 
 
-                    cmd.CommandText = tabela;
+                        cmd.CommandText = tabela;
 
                     using (MySqlDataReader tela = cmd.ExecuteReader())
                     {
@@ -282,7 +326,7 @@ namespace Gerenciamente_de_controle_de_estoque
                             Console.WriteLine("ID :{0}", tela["id"]);
                             Console.WriteLine("Nome :{0}", tela["Nome"]);
                             Console.WriteLine("Quantidade :{0}", tela["Quantidade"]);
-                            Console.WriteLine("Valor :{0}", tela["valor"]);
+                            Console.WriteLine("Valor : R$ {0:F2}", tela["valor"]);
                             DateTime data = Convert.ToDateTime(tela["data_vencimento"]);
                             Console.WriteLine("Data de Vencimento : {0:dd/MM/yyyy}", data); // Formatando a data
                      
@@ -296,6 +340,7 @@ namespace Gerenciamente_de_controle_de_estoque
                         if (!achou)
                         {
                             Console.WriteLine("Nenhum produto encontrado com esse critério.");
+                            
                         }
                             
                             
