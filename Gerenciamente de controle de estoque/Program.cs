@@ -1,4 +1,5 @@
-﻿using MySql.Data.MySqlClient;
+﻿using Microsoft.Extensions.Configuration;
+using MySql.Data.MySqlClient;
 using System.Configuration;
 namespace Gerenciamente_de_controle_de_estoque
 {
@@ -6,8 +7,15 @@ namespace Gerenciamente_de_controle_de_estoque
     {
         static void Main(string[] args)
         {
+                 // 1. Construir o objeto de configuração
+                 IConfiguration configuration = new ConfigurationBuilder()
+                .SetBasePath(AppContext.BaseDirectory) // Caminho correto para apps de console
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddUserSecrets<Program>()
+                .Build();
+
             int opcao = 0; // Variavel para navegar no menu 
-            
+
             do
             {
                 Console.Clear();
@@ -28,8 +36,8 @@ namespace Gerenciamente_de_controle_de_estoque
                 Console.WriteLine();
 
                 switch (opcao)
-                { // Começo do switch 
-                    case 1: // Inicio caso 1 
+                { // Começo do switch menu 
+                    case 1: // Inicio caso 1  menu 
                         while (true)
                         {
                             Console.Clear();
@@ -52,7 +60,7 @@ namespace Gerenciamente_de_controle_de_estoque
                             Console.WriteLine();
 
 
-                            Inserindo(produto1); 
+                            Inserindo(produto1);
 
                             Console.Write("Deseja Cadastrar mais  produtos ? (s/n) :");
                             string comfirProd = Console.ReadLine().ToUpper();
@@ -61,7 +69,7 @@ namespace Gerenciamente_de_controle_de_estoque
                             {
                                 Console.WriteLine("Agurde...");
                                 Thread.Sleep(1000);
-                                
+
                             }
                             else if (comfirProd == "N")
                             {
@@ -72,16 +80,16 @@ namespace Gerenciamente_de_controle_de_estoque
                                 Console.WriteLine("Opção invalida. Por favor digite s ou n :");
                                 Console.ReadKey();
                             }
-                            
 
-                            
+
+
 
                         }
 
-                        break;// final caso 1 
+                        break;// final caso 1  menu 
 
-                    case 2: // INICIO CASO 2 
-                        
+                    case 2: // INICIO CASO 2  menu
+
                         string campo = "";
                         int opcaoBuscar = 0;
                         string valorParaBusc = "";
@@ -101,16 +109,16 @@ namespace Gerenciamente_de_controle_de_estoque
                             Console.Write("Escolha uma das opções acima (1 ao 4 ):");
                             opcaoBuscar = int.Parse(Console.ReadLine());
 
-                            switch (opcaoBuscar)
+                            switch (opcaoBuscar) // Inicio do switch de busca 
                             {
 
                                 case 1:
-                                    
+
                                     valorParaBusc = "1";
                                     Console.Clear();
-                                    BuscarProduto(opcaoBuscar,valorParaBusc);
+                                    BuscarProduto(opcaoBuscar, valorParaBusc);
                                     Console.ReadKey();
-                                    
+
 
                                     break;
 
@@ -119,7 +127,7 @@ namespace Gerenciamente_de_controle_de_estoque
 
                                     Console.Write("Digite o ID do produto  que deseja buscar :");
                                     valorParaBusc = Console.ReadLine();
-                                   
+
                                     BuscarProduto(opcaoBuscar, valorParaBusc);
                                     Console.ReadKey();
 
@@ -128,38 +136,62 @@ namespace Gerenciamente_de_controle_de_estoque
                                     break;
 
                                 case 3:
-                                    
+
                                     Console.Clear();
                                     Console.Write("Digite o nome do produto que deseja buscar :");
                                     valorParaBusc = Console.ReadLine();
 
-                                    BuscarProduto(opcaoBuscar,valorParaBusc);
+                                    BuscarProduto(opcaoBuscar, valorParaBusc);
                                     Console.ReadKey();
 
                                     break;
                                 case 4:
-                                    
-                                    
+
+
 
                                     break;
                                 default:
                                     Console.WriteLine("Opção invalida !!");
                                     Console.ReadKey();
                                     break;
-                            }
+                            } // Final do switch de buscar produto 
 
 
 
 
                         } while (opcaoBuscar != 4);
-                        break; // FINAL CASO 2 
-                }// Final do swtich 
+                        break; // FINAL CASO 2  menu 
+                    case 3:
+
+
+                        break;
+
+                    default: // inicio  do menu 
+
+                        break; // do menu 
+                }// Final do swtich   menu 
 
 
             } while (opcao != 5);
 
         }
-        
+
+        // Metodo para EDITAR O PDRODUTO 
+
+        static void editarProduto()
+        {
+            // 1. Construir o objeto de configuração
+            IConfiguration configuration = new ConfigurationBuilder()
+           .SetBasePath(AppContext.BaseDirectory) // Caminho correto para apps de console
+           .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+           .AddUserSecrets<Program>()
+           .Build();
+
+            MySqlConnection banco = new MySqlConnection(configuration.GetConnectionString("MeuBanco"));
+
+
+        }
+
         static decimal lervalor(string mensagem) // Metodo para tratar o erro do valor 
         {
             decimal testevalor; 
@@ -188,7 +220,7 @@ namespace Gerenciamente_de_controle_de_estoque
 
         }
 
-        static int lerinteiro(string mensagem)
+        static int lerinteiro(string mensagem) // metodo para verificar erros 
         {
             string entradaquanti = "";
             int quantidadeteste;
@@ -214,7 +246,7 @@ namespace Gerenciamente_de_controle_de_estoque
 
             }
         }
-        static DateTime lerdata(string mensagem)
+        static DateTime lerdata(string mensagem) // metodo para verificar erro, e aceitar a data no formato mmddyyyy
         {
             string entradadata;
             while (true)
@@ -238,13 +270,19 @@ namespace Gerenciamente_de_controle_de_estoque
             }    
         }
 
-        static void Inserindo(Produto produto)
+        static void Inserindo(Produto produto) // metodo para inserir dados na tabela 
         {
-            string conexao = "server=localhost;user=root;password=sua senha;database=seubanco";
+           
 
             try
             {
-                using (MySqlConnection banco = new MySqlConnection(conexao))
+                // 1. Construir o objeto de configuração
+                IConfiguration configuration = new ConfigurationBuilder()
+               .SetBasePath(AppContext.BaseDirectory) // Caminho correto para apps de console
+               .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+               .AddUserSecrets<Program>()
+               .Build();
+                using (MySqlConnection banco = new MySqlConnection(configuration.GetConnectionString("MeuBanco")))
                 {
                     banco.Open();
 
@@ -273,12 +311,18 @@ namespace Gerenciamente_de_controle_de_estoque
             }   
         }
 
-        static void BuscarProduto(int opcao, string valor) 
+        static void BuscarProduto(int opcao, string valor) // metodo de buscar produto 
         {
-            string conexao = "server=localhost;user=root;password=suasenha;database=seubanco";
+            // 1. Construir o objeto de configuração
+            IConfiguration configuration = new ConfigurationBuilder()
+           .SetBasePath(AppContext.BaseDirectory) // Caminho correto para apps de console
+           .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+           .AddUserSecrets<Program>()
+           .Build();
+
             try
             {
-                using (MySqlConnection banco = new MySqlConnection(conexao))
+                using (MySqlConnection banco = new MySqlConnection(configuration.GetConnectionString("MeuBanco")))
                 {
                     banco.Open();
                     string tabela = "";
@@ -347,7 +391,7 @@ namespace Gerenciamente_de_controle_de_estoque
                     }
 
 
-
+                    banco.Close();
                 }
             }
             catch (Exception ex)  
